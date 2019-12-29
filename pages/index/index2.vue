@@ -8,9 +8,18 @@
 		<!-- 弹框 -->
 		<view class="popup" id="capture" :class="isShow?'show':'hide'">
 			<view class="border-r30 main border3">
-				<view class="content">
-					<image :src="shareImage" class="share-image" mode="aspectFit"></image>
-					<canvasdrawer :painting="painting" class="canvasdrawer" @getImage="eventGetImage" />
+				<view class="border-r30 border3 box-top">
+					<image :src="imgUrl"></image>
+					<view class="title_box">
+						<view class="title ">
+							{{title}}<br>{{title2}}
+						</view>
+						<view class="qcode border3">
+						</view>
+					</view>
+				</view>
+				<view class="border-r30 border3 box-bottom">
+					{{descripte}}
 				</view>
 			</view>
 			<view class="btn_box">
@@ -18,117 +27,45 @@
 				<button class="cu-btn btn-share" @click="share()" open-type='share'>立即分享</button>
 			</view>
 		</view>
+
+		<!-- <wakary-poster>
+
+		</wakary-poster> -->
+
 	</view>
 </template>
 
 <script>
-	// import wakaryPoster from '@/components/wakary-poster/wakary-poster.vue'
-	import canvasdrawer from "@/components/uniapp-canvas-drawer/uniapp-canvas-drawer"
+	import wakaryPoster from '@/components/wakary-poster/wakary-poster.vue'
 	export default {
 		components: {
-			canvasdrawer
+			wakaryPoster
 		},
 		data() {
 			return {
-				isShow: false,
+				isShow: true,
+				title: '桃花旺，人品好',
 				title2: '火速脱单',
 				imgUrl: '../../static/img/img.jpeg',
-				painting: {},
-				shareImage: ''
+				descripte: '没错，你就是靠脸吃饭的代表，乡亲父老的国宝，被星探发现，从此开启演艺之路。拍广告上春晚出人头地不是梦。2020星运超旺'
 			}
 		},
 		onLoad() {
 
 		},
 		methods: {
-			getText() {
-				console.log(this)
-				//数据
-				this.painting = {
-					width: 470,
-					height: 772,
-					clear: true,
-					views: [{
-							type: 'image',
-							url: 'http://q34h5h1tk.bkt.clouddn.com/result_bg.jpg',
-							top: 0,
-							left: 0,
-							width: 470,
-							height: 702
-						},
-						{
-							type: 'text',
-							content: '桃花旺，人品好',
-							fontSize: 40,
-							color: '#383549',
-							textAlign: 'left',
-							top: 420,
-							left: 44,
-							width: 287,
-							MaxLineNumber: 2,
-							breakWord: true,
-							bolder: true
-						},
-						{
-							type: 'image',
-							url: 'https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83erma73GwPeY6QhTwTlkMiaSICnA2aeW43Jv4N1fvuwRTYyxMIqVOBicKg4wBJjeCcU32uAIFf3b4mOQ/132',
-							top: 423,
-							left: 362,
-							width: 76,
-							height: 76
-						},
-						{
-							type: 'text',
-							content: '没错，你就是靠脸吃饭的代表，乡亲父老的国宝，被星探发现，从此开启演艺之路。拍广告上春晚出人头地不是梦。2020星运超旺',
-							fontSize: 22,
-							color: '#383549',
-							textAlign: 'left',
-							top: 570,
-							left: 34,
-							lineHeight: 24,
-							MaxLineNumber: 4,
-							breakWord: true,
-							width: 380
-						}
-					]
-				}
-			},
 			test() {
-				uni.showLoading({
-					title: '正在分析...',
-					mask: true
-				})
-				this.getText();
-				console.log(this)
 				this.isShow = !this.isShow;
+				console.log(1111)
 			},
 			//关闭弹框
 			hide() {
 				this.isShow = !this.isShow;
 			},
+			//保存图片
 			save() {
-				uni.saveImageToPhotosAlbum({
-					filePath: this.shareImage,
-					success(res) {
-						uni.showToast({
-							title: '保存图片成功',
-							icon: 'success',
-							duration: 2000
-						})
-					}
-				})
-			},
-			eventGetImage(event) {
-				console.log(this);
-				uni.hideLoading();
-				// const { tempFilePath, errMsg } = event.detail
-				const result = event.detail.__args__
-				const tempFilePath = result[0].tempFilePath
-				const errMsg = result[0].errMsg
-				if (errMsg === 'canvasdrawer:ok') {
-					this.shareImage = tempFilePath
-					this.painting = {}
-				}
+				console.log(111);
+				
 			}
 		},
 		onShareAppMessage(res) {
@@ -306,10 +243,5 @@
 
 	.btn-share {
 		background-image: radial-gradient(#fd002e, #fd6f1f);
-	}
-
-	.share-image {
-		width: 600upx;
-		height: 888upx;
 	}
 </style>
