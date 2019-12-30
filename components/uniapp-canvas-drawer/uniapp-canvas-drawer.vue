@@ -49,7 +49,6 @@
 		},
 		methods: {
 			readyPigment() {
-				// const { width, height, views } = this.painting
 				const width = this.painting.width
 				const height = this.painting.height
 				const views = this.painting.views
@@ -94,7 +93,7 @@
 				})
 			},
 			startPainting() {
-
+				
 				const tempFileList = this.tempFileList
 				const views = this.painting.views
 
@@ -158,44 +157,30 @@
 					} else {
 						this.ctx.drawImage(url, left, top, width, height)
 					}
-
-
 				}
-
 				this.ctx.restore()
 			},
 			roundRect(params, ctx) {
-				ctx.drawImage(params.url, params.left, params.top, params.width, params.height);
 				var x = params.left,
 					y = params.top,
 					w = params.width,
 					h = params.height,
 					r = params.borderRadius;
 				//开始
-				 ctx.save();
-				  if(w < 2 * r){
-				    r = w / 2;
-				  }
-				  if(h < 2 * r){
-				    r = h / 2;
-				  }
-				  ctx.beginPath();
-				  ctx.setFillStyle("#ccc");
-				  ctx.setStrokeStyle('#111');
-				  ctx.setFillStyle("#ccc");
-				  ctx.setLineWidth(r);
-				  ctx.setFillStyle("#ccc");
-				  ctx.moveTo(x + r , y);
-				  ctx.arcTo(x + w, y, x + w, y + h, r);
-				  ctx.arcTo(x + w, y + h, x , y + h, r);
-				  ctx.arcTo(x, y + h, x, y, r);
-				  ctx.arcTo(x, y, x + w, y , r);
-				  ctx.stroke();
-				  ctx.closePath();
-				//结束
-				// ctx.clip();
-
-
+				ctx.save();
+				ctx.beginPath();
+				ctx.setStrokeStyle('#000');
+				ctx.setLineWidth(5);
+				ctx.moveTo(x + r, y);
+				ctx.arcTo(x + w, y, x + w, y + h, r);
+				ctx.arcTo(x + w, y + h, x, y + h, r);
+				ctx.arcTo(x, y + h, x, y, r);
+				ctx.arcTo(x, y, x + w, y, r);
+				ctx.stroke();
+				ctx.closePath();
+				ctx.clip(); //剪切路径
+				//画图片
+				ctx.drawImage(params.url, params.left, params.top, params.width, params.height);
 			},
 			drawText(params) {
 				this.ctx.save()

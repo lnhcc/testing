@@ -14,8 +14,10 @@
 				</view>
 			</view>
 			<view class="btn_box">
-				<button class="cu-btn btn-retest" @click="save()">保存图片</button>
-				<button class="cu-btn btn-share" open-type='share'>立即分享</button>
+				<button class="cu-btn btn-retest" @click="save()" v-if='isAuth'>保存图片</button>
+				<button class="cu-btn btn-retest" open-type="openSetting" v-if='!isAuth'>去授权</button>
+
+				<button class="cu-btn btn-share" open-type='share'>分享好友</button>
 			</view>
 		</view>
 	</view>
@@ -35,11 +37,13 @@
 				title2: '火速脱单',
 				imgUrl: '../../static/img/img.jpeg',
 				painting: {},
-				shareImage: ''
+				shareImage: '',
+				isAuth: true
 			}
 		},
 		onLoad() {
-			console.log(utils.apiName)
+			let that = this;
+
 		},
 		methods: {
 			getText() {
@@ -49,8 +53,8 @@
 					url: utils.apiName + 'api/fate?is_show=1', //仅为示例，并非真实接口地址。
 					success: function(res) {
 						textList = res.data.data;
-						console.log(textList)
-						let index = parseInt(Math.random() * 4);
+						//随机下标
+						let index = parseInt(Math.random() * textList.length);
 						let text = textList[index];
 						that.painting = {
 							width: 470,
@@ -58,8 +62,7 @@
 							clear: true,
 							views: [{
 									type: 'image',
-									// url: 'https://facemark.skyvow.cn/uploads/fate_body_bg.jpg',
-									url: 'http://q34h5h1tk.bkt.clouddn.com/result_bg1.jpg',
+									url: 'https://facemark.skyvow.cn/uploads/fate_body_bg.jpg',
 									top: 0,
 									left: 0,
 									width: 470,
@@ -67,16 +70,18 @@
 								},
 								{
 									type: 'image',
-									url: 'http://q34h5h1tk.bkt.clouddn.com/img.jpeg',
+									url: utils.apiName + text.img,
 									top: 14,
-									left:12,
+									left: 11,
 									width: 450,
-									height: 384,
-									borderRadius:5
-								}, 
+									height: 404,
+									borderRadius: 20
+								},
 								{
 									type: 'image',
-									url: 'http://q34h5h1tk.bkt.clouddn.com/2020%E8%BF%90%E5%8A%BF.png',
+									// url: 'https://facemark.skyvow.cn/uploads/fate_top_title.jpg',
+									// http://q34h5h1tk.bkt.clouddn.com/2020%E8%BF%90%E5%8A%BF.png
+									url: '../../static/img/title.png',
 									top: 0,
 									left: 135,
 									width: 200,
@@ -88,7 +93,7 @@
 									fontSize: 40,
 									color: '#FFF',
 									textAlign: 'left',
-									top: 420,
+									top: 430,
 									left: 44,
 									width: 287,
 									MaxLineNumber: 2,
@@ -98,20 +103,20 @@
 								{
 									type: 'image',
 									url: 'https://facemark.skyvow.cn/uploads/fate_qrcode.jpg',
-									top: 423,
-									left: 362,
+									top: 434,
+									left: 364,
 									width: 76,
 									height: 76
 								},
 								{
 									type: 'text',
 									content: text.desc,
-									fontSize: 22,
-									color: '#383549',
+									fontSize: 24,
+									color: '#000',
 									textAlign: 'left',
-									top: 570,
+									top: 580,
 									left: 34,
-									lineHeight: 24,
+									lineHeight: 26,
 									MaxLineNumber: 4,
 									breakWord: true,
 									width: 380
@@ -120,41 +125,47 @@
 						}
 					}
 				});
-
-				//数据
 			},
 			test() {
 				uni.showLoading({
-					title: '正在分析...',
+					title: '分析中...',
 					mask: true
 				})
 				this.getText();
-
 				this.isShow = !this.isShow;
 			},
 			//关闭弹框
 			hide() {
+				this.shareImage = '../../static/img/empty.png';
 				this.isShow = !this.isShow;
 			},
 			save() {
-				console.log(this.shareImage)
-				uni.saveImageToPhotosAlbum({
-					filePath: this.shareImage,
-					success(res) {
-						uni.showToast({
-							title: '保存图片成功',
-							icon: 'success',
-							duration: 2000
+				let that = this;
+				uni.authorize({
+					scope: 'scope.writePhotosAlbum',
+					success() {
+						console.log(1);
+						that.isAuth = true;
+						uni.saveImageToPhotosAlbum({
+							filePath: that.shareImage,
+							success(res) {
+								uni.showToast({
+									title: '保存图片成功',
+									icon: 'success',
+									duration: 2000
+								})
+							}
 						})
 					},
-					fail(res) {
-						console.log(res)
+					fail() {
+						console.log(2);
+						that.isAuth = false;
 					}
-
 				})
+
+
 			},
 			eventGetImage(event) {
-				console.log(this);
 				uni.hideLoading();
 				// const { tempFilePath, errMsg } = event.detail
 				const result = event.detail.__args__
