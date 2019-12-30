@@ -4,9 +4,9 @@
 		<view class="page_bg"></view>
 		<button class="cu-btn btn web-font" @click="test()">开始预测</button>
 		<!-- 遮罩层 -->
-		<div class="cover" :class="isShow?'show':'hide'" @click='hide()'></div>
+		<div class="cover" :class="className" @click='hide()'></div>
 		<!-- 弹框 -->
-		<view class="popup" id="capture" :class="isShow?'show':'hide'">
+		<view class="popup" id="capture" :class="className">
 			<view class="border-r30 main border3">
 				<view class="content">
 					<image :src="shareImage" class="share-image" mode="aspectFit"></image>
@@ -15,8 +15,7 @@
 			</view>
 			<view class="btn_box">
 				<button class="cu-btn btn-retest" @click="save()" v-if='isAuth'>保存图片</button>
-				<button class="cu-btn btn-retest" open-type="openSetting" v-if='!isAuth'>去授权</button>
-
+				<button class="cu-btn btn-retest" open-type="openSetting" v-if='!isAuth'>授权保存</button>
 				<button class="cu-btn btn-share" open-type='share'>分享好友</button>
 			</view>
 		</view>
@@ -34,16 +33,28 @@
 		data() {
 			return {
 				isShow: false,
-				title2: '火速脱单',
-				imgUrl: '../../static/img/img.jpeg',
 				painting: {},
 				shareImage: '',
-				isAuth: true
+				isAuth: true,
+				className: 'hide'
 			}
 		},
-		onLoad() {
+		onLoad() {},
+		onShow() {
 			let that = this;
-
+			if (!that.isAuth) {
+				//如果当前没有权限的话 就请求一下 是不是真的没有
+				//还是在setting里设置里 但是状态没更新
+				uni.authorize({
+					scope: 'scope.writePhotosAlbum',
+					success() {
+						that.isAuth = true;
+					},
+					fail() {
+						that.isAuth = false;
+					}
+				})
+			}
 		},
 		methods: {
 			getText() {
@@ -127,24 +138,33 @@
 				});
 			},
 			test() {
+				let that = this;
+				that.className = 'show';
 				uni.showLoading({
 					title: '分析中...',
 					mask: true
 				})
-				this.getText();
-				this.isShow = !this.isShow;
+				setTimeout(() => {
+					this.className = 'show fadeIn';
+				}, 50);
+				that.getText();
+				that.isShow = !that.isShow;
 			},
 			//关闭弹框
 			hide() {
-				this.shareImage = '../../static/img/empty.png';
-				this.isShow = !this.isShow;
+				let that = this;
+				that.className = 'show fadeOut';
+				setTimeout(() => {
+					this.className = 'hide';
+				}, 300);
+				that.shareImage = '../../static/img/empty.png';
+				that.isShow = !that.isShow;
 			},
 			save() {
 				let that = this;
 				uni.authorize({
 					scope: 'scope.writePhotosAlbum',
 					success() {
-						console.log(1);
 						that.isAuth = true;
 						uni.saveImageToPhotosAlbum({
 							filePath: that.shareImage,
@@ -158,12 +178,9 @@
 						})
 					},
 					fail() {
-						console.log(2);
 						that.isAuth = false;
 					}
 				})
-
-
 			},
 			eventGetImage(event) {
 				uni.hideLoading();
@@ -357,5 +374,34 @@
 	.share-image {
 		width: 600upx;
 		height: 888upx;
+	}
+
+	@keyframes fadeIn {
+		0% {
+			opacity: 0;
+		}
+
+		to {
+			opacity: 1;
+		}
+	}
+
+	.fadeIn {
+		animation: fadeIn ease .3s forwards;
+		
+	}
+
+	@keyframes fadeOut {
+		0% {
+			opacity: 1;
+		}
+
+		to {
+			opacity: 0;
+		}
+	}
+
+	.fadeOut {
+		animation: fadeOut ease .3s forwards;
 	}
 </style>
