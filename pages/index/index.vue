@@ -138,27 +138,23 @@
 				});
 			},
 			test() {
-				let that = this;
-				that.className = 'show';
+				this.className = 'show';
 				uni.showLoading({
 					title: '分析中...',
 					mask: true
 				})
 				setTimeout(() => {
 					this.className = 'show fadeIn';
-				}, 50);
-				that.getText();
-				that.isShow = !that.isShow;
+				}, 0);
+				this.getText();
 			},
 			//关闭弹框
 			hide() {
-				let that = this;
-				that.className = 'show fadeOut';
+				this.className = 'show fadeOut';
 				setTimeout(() => {
 					this.className = 'hide';
 				}, 300);
-				that.shareImage = '../../static/img/empty.png';
-				that.isShow = !that.isShow;
+				this.shareImage = '../../static/img/empty.png';
 			},
 			save() {
 				let that = this;
@@ -308,6 +304,7 @@
 	}
 
 	.hide {
+		opacity: 0;
 		display: none;
 	}
 
