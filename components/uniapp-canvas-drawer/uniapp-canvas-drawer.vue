@@ -1,7 +1,6 @@
 <template>
 	<view>
-		<canvas canvas-id="canvasdrawer" :style="{'width': width + 'px','height': height + 'px'}"
-		class="board" v-if="showCanvas"></canvas>
+		<canvas canvas-id="canvasdrawer" :style="{'width': width + 'px','height': height + 'px'}" class="board" v-if="showCanvas"></canvas>
 	</view>
 </template>
 
@@ -30,13 +29,15 @@
 						if (newVal && newVal.width && newVal.height) {
 							this.showCanvas = true
 							this.isPainting = true
-							
+
 							this.readyPigment()
 						}
 					} else {
 						if (newVal && newVal.mode !== 'same') {
 							// this.triggerEvent('getImage', {errMsg: 'canvasdrawer:samme params'})
-							this.$emit('getImage', {errMsg: 'canvasdrawer:samme params'})
+							this.$emit('getImage', {
+								errMsg: 'canvasdrawer:samme params'
+							})
 						}
 					}
 				}
@@ -47,15 +48,15 @@
 			this.ctx = uni.createCanvasContext('canvasdrawer', this)
 		},
 		methods: {
-			readyPigment () {
+			readyPigment() {
 				// const { width, height, views } = this.painting
 				const width = this.painting.width
 				const height = this.painting.height
 				const views = this.painting.views
-				
+
 				this.width = width
 				this.height = height
-				
+
 				const inter = setInterval(() => {
 					if (this.ctx) {
 						clearInterval(inter)
@@ -92,11 +93,11 @@
 					this.startPainting()
 				})
 			},
-		    startPainting () {
-				
+			startPainting() {
+
 				const tempFileList = this.tempFileList
 				const views = this.painting.views
-				
+
 				// const { tempFileList, painting: { views } } = this.$data
 				for (let i = 0, imageIndex = 0; i < views.length; i++) {
 					if (views[i].type === 'image') {
@@ -112,7 +113,9 @@
 								content: '当前微信版本过低，无法使用 measureText 功能，请升级到最新微信版本后重试。'
 							})
 							// this.triggerEvent('getImage', {errMsg: 'canvasdrawer:version too low'})
-							this.$emit('getImage', {errMsg: 'canvasdrawer:version too low'})
+							this.$emit('getImage', {
+								errMsg: 'canvasdrawer:version too low'
+							})
 							return
 						} else {
 							this.drawText(views[i])
@@ -133,43 +136,90 @@
 						}, 800)
 					}
 				})
-		    },
-			drawImage (params) {
+			},
+			drawImage(params) {
 				this.ctx.save()
-				const { url, top = 0, left = 0, width = 0, height = 0, borderRadius = 0, deg = 0 } = params
+				const {
+					url,
+					top = 0,
+					left = 0,
+					width = 0,
+					height = 0,
+					borderRadius = 0,
+					deg = 0
+				} = params;
 				if (deg !== 0) {
-					this.ctx.translate(left + width/2, top + height/2)
+					this.ctx.translate(left + width / 2, top + height / 2)
 					this.ctx.rotate(deg * Math.PI / 180)
-					this.ctx.drawImage(url, -width/2, -height/2, width, height)
+					this.ctx.drawImage(url, -width / 2, -height / 2, width, height)
 				} else {
-					this.ctx.drawImage(url, left, top, width, height)
+					if (borderRadius != 0) {
+						this.roundRect(params, this.ctx)
+					} else {
+						this.ctx.drawImage(url, left, top, width, height)
+					}
+
+
 				}
-				
+
 				this.ctx.restore()
 			},
-		    drawText (params) {
+			roundRect(params, ctx) {
+				ctx.drawImage(params.url, params.left, params.top, params.width, params.height);
+				var x = params.left,
+					y = params.top,
+					w = params.width,
+					h = params.height,
+					r = params.borderRadius;
+				//开始
+				 ctx.save();
+				  if(w < 2 * r){
+				    r = w / 2;
+				  }
+				  if(h < 2 * r){
+				    r = h / 2;
+				  }
+				  ctx.beginPath();
+				  ctx.setFillStyle("#ccc");
+				  ctx.setStrokeStyle('#111');
+				  ctx.setFillStyle("#ccc");
+				  ctx.setLineWidth(r);
+				  ctx.setFillStyle("#ccc");
+				  ctx.moveTo(x + r , y);
+				  ctx.arcTo(x + w, y, x + w, y + h, r);
+				  ctx.arcTo(x + w, y + h, x , y + h, r);
+				  ctx.arcTo(x, y + h, x, y, r);
+				  ctx.arcTo(x, y, x + w, y , r);
+				  ctx.stroke();
+				  ctx.closePath();
+				//结束
+				// ctx.clip();
+
+
+			},
+			drawText(params) {
 				this.ctx.save()
 				const {
 					MaxLineNumber = 2,
-					breakWord = false,
-					color = 'black',
-					content = '',
-					fontSize = 16,
-					top = 0,
-					left = 0,
-					lineHeight = 20,
-					textAlign = 'left',
-					width,
-					bolder = false,
-					textDecoration = 'none'
+						breakWord = false,
+						color = 'black',
+						content = '',
+						fontSize = 16,
+						top = 0,
+						left = 0,
+						lineHeight = 20,
+						textAlign = 'left',
+						width,
+						bolder = false,
+						textDecoration = 'none'
 				} = params
-		      
+
 				this.ctx.beginPath()
 				this.ctx.setTextBaseline('top')
 				this.ctx.setTextAlign(textAlign)
 				this.ctx.setFillStyle(color)
 				this.ctx.setFontSize(fontSize)
-		
+
 				if (!breakWord) {
 					this.ctx.fillText(content, left, top)
 					this.drawTextLine(left, top, textDecoration, color, fontSize, content)
@@ -193,26 +243,26 @@
 							this.drawTextLine(left, fillTop, textDecoration, color, fontSize, fillText)
 							fillText = ''
 							fillTop += lineHeight
-							lineNum ++
+							lineNum++
 						}
 					}
 					this.ctx.fillText(fillText, left, fillTop)
 					this.drawTextLine(left, fillTop, textDecoration, color, fontSize, fillText)
 				}
-		      
+
 				this.ctx.restore()
-		
+
 				if (bolder) {
 					this.drawText({
 						...params,
 						left: left + 0.3,
 						top: top + 0.3,
 						bolder: false,
-						textDecoration: 'none' 
+						textDecoration: 'none'
 					})
 				}
-		    },
-		    drawTextLine (left, top, textDecoration, color, fontSize, content) {
+			},
+			drawTextLine(left, top, textDecoration, color, fontSize, content) {
 				if (textDecoration === 'underline') {
 					this.drawRect({
 						background: color,
@@ -231,14 +281,20 @@
 					})
 				}
 			},
-			drawRect (params) {
+			drawRect(params) {
 				this.ctx.save()
-				const { background, top = 0, left = 0, width = 0, height = 0 } = params
+				const {
+					background,
+					top = 0,
+					left = 0,
+					width = 0,
+					height = 0
+				} = params
 				this.ctx.setFillStyle(background)
 				this.ctx.fillRect(left, top, width, height)
 				this.ctx.restore()
-		    },
-			getImageInfo (url) {
+			},
+			getImageInfo(url) {
 				return new Promise((resolve, reject) => {
 					if (this.cache[url]) {
 						resolve(this.cache[url])
@@ -253,7 +309,9 @@
 										resolve(res.path)
 									} else {
 										// this.triggerEvent('getImage', {errMsg: 'canvasdrawer:download fail'})
-										this.$emit('getImage', {errMsg: 'canvasdrawer:download fail'})
+										this.$emit('getImage', {
+											errMsg: 'canvasdrawer:download fail'
+										})
 										reject(new Error('getImageInfo fail'))
 									}
 								}
@@ -264,8 +322,8 @@
 						}
 					}
 				})
-		    },
-			saveImageToLocal () {
+			},
+			saveImageToLocal() {
 				// const { width, height } = this.data
 				const width = this.width
 				const height = this.height
@@ -277,16 +335,21 @@
 					canvasId: 'canvasdrawer',
 					complete: res => {
 						if (res.errMsg === 'canvasToTempFilePath:ok') {
-							
+
 							this.showCanvas = false
 							this.isPainting = false
 							this.tempFileList = []
-							
+
 							// this.triggerEvent('getImage', {tempFilePath: res.tempFilePath, errMsg: 'canvasdrawer:ok'})
-							this.$emit('getImage', {tempFilePath: res.tempFilePath, errMsg: 'canvasdrawer:ok'})
+							this.$emit('getImage', {
+								tempFilePath: res.tempFilePath,
+								errMsg: 'canvasdrawer:ok'
+							})
 						} else {
 							// this.triggerEvent('getImage', {errMsg: 'canvasdrawer:fail'})
-							this.$emit('getImage', {errMsg: 'canvasdrawer:fail'})
+							this.$emit('getImage', {
+								errMsg: 'canvasdrawer:fail'
+							})
 						}
 					}
 				}, this)
@@ -297,7 +360,7 @@
 
 <style>
 	.board {
-	  position: fixed;
-	  top: 2000upx;
+		position: fixed;
+		top: 2000upx;
 	}
 </style>

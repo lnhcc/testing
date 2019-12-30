@@ -36,10 +36,10 @@
 </template>
 
 <script>
-	import wakaryPoster from '@/components/wakary-poster/wakary-poster.vue'
+	// import wakaryPoster from '@/components/wakary-poster/wakary-poster.vue'
 	export default {
 		components: {
-			wakaryPoster
+			// wakaryPoster
 		},
 		data() {
 			return {

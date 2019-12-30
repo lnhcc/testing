@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<cu-custom bgImage="http://q34h5h1tk.bkt.clouddn.com/header.jpeg"></cu-custom>
+		<cu-custom bgImage="https://facemark.skyvow.cn/uploads/fate_header_bg.jpg"></cu-custom>
 		<view class="page_bg"></view>
 		<button class="cu-btn btn web-font" @click="test()">开始预测</button>
 		<!-- 遮罩层 -->
@@ -15,7 +15,7 @@
 			</view>
 			<view class="btn_box">
 				<button class="cu-btn btn-retest" @click="save()">保存图片</button>
-				<button class="cu-btn btn-share" @click="share()" open-type='share'>立即分享</button>
+				<button class="cu-btn btn-share" open-type='share'>立即分享</button>
 			</view>
 		</view>
 	</view>
@@ -24,6 +24,7 @@
 <script>
 	// import wakaryPoster from '@/components/wakary-poster/wakary-poster.vue'
 	import canvasdrawer from "@/components/uniapp-canvas-drawer/uniapp-canvas-drawer"
+	import utils from '@/common/utils.js';
 	export default {
 		components: {
 			canvasdrawer
@@ -38,60 +39,89 @@
 			}
 		},
 		onLoad() {
-
+			console.log(utils.apiName)
 		},
 		methods: {
 			getText() {
-				console.log(this)
-				//数据
-				this.painting = {
-					width: 470,
-					height: 772,
-					clear: true,
-					views: [{
-							type: 'image',
-							url: 'http://q34h5h1tk.bkt.clouddn.com/result_bg.jpg',
-							top: 0,
-							left: 0,
+				let that = this;
+				let textList = [];
+				uni.request({
+					url: utils.apiName + 'api/fate?is_show=1', //仅为示例，并非真实接口地址。
+					success: function(res) {
+						textList = res.data.data;
+						console.log(textList)
+						let index = parseInt(Math.random() * 4);
+						let text = textList[index];
+						that.painting = {
 							width: 470,
-							height: 702
-						},
-						{
-							type: 'text',
-							content: '桃花旺，人品好',
-							fontSize: 40,
-							color: '#383549',
-							textAlign: 'left',
-							top: 420,
-							left: 44,
-							width: 287,
-							MaxLineNumber: 2,
-							breakWord: true,
-							bolder: true
-						},
-						{
-							type: 'image',
-							url: 'https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83erma73GwPeY6QhTwTlkMiaSICnA2aeW43Jv4N1fvuwRTYyxMIqVOBicKg4wBJjeCcU32uAIFf3b4mOQ/132',
-							top: 423,
-							left: 362,
-							width: 76,
-							height: 76
-						},
-						{
-							type: 'text',
-							content: '没错，你就是靠脸吃饭的代表，乡亲父老的国宝，被星探发现，从此开启演艺之路。拍广告上春晚出人头地不是梦。2020星运超旺',
-							fontSize: 22,
-							color: '#383549',
-							textAlign: 'left',
-							top: 570,
-							left: 34,
-							lineHeight: 24,
-							MaxLineNumber: 4,
-							breakWord: true,
-							width: 380
+							height: 720,
+							clear: true,
+							views: [{
+									type: 'image',
+									// url: 'https://facemark.skyvow.cn/uploads/fate_body_bg.jpg',
+									url: 'http://q34h5h1tk.bkt.clouddn.com/result_bg1.jpg',
+									top: 0,
+									left: 0,
+									width: 470,
+									height: 720
+								},
+								{
+									type: 'image',
+									url: 'http://q34h5h1tk.bkt.clouddn.com/img.jpeg',
+									top: 14,
+									left:12,
+									width: 450,
+									height: 384,
+									borderRadius:5
+								}, 
+								{
+									type: 'image',
+									url: 'http://q34h5h1tk.bkt.clouddn.com/2020%E8%BF%90%E5%8A%BF.png',
+									top: 0,
+									left: 135,
+									width: 200,
+									height: 47
+								},
+								{
+									type: 'text',
+									content: text.title,
+									fontSize: 40,
+									color: '#FFF',
+									textAlign: 'left',
+									top: 420,
+									left: 44,
+									width: 287,
+									MaxLineNumber: 2,
+									breakWord: true,
+									bolder: true
+								},
+								{
+									type: 'image',
+									url: 'https://facemark.skyvow.cn/uploads/fate_qrcode.jpg',
+									top: 423,
+									left: 362,
+									width: 76,
+									height: 76
+								},
+								{
+									type: 'text',
+									content: text.desc,
+									fontSize: 22,
+									color: '#383549',
+									textAlign: 'left',
+									top: 570,
+									left: 34,
+									lineHeight: 24,
+									MaxLineNumber: 4,
+									breakWord: true,
+									width: 380
+								}
+							]
 						}
-					]
-				}
+					}
+				});
+
+				//数据
 			},
 			test() {
 				uni.showLoading({
@@ -99,7 +129,7 @@
 					mask: true
 				})
 				this.getText();
-				console.log(this)
+
 				this.isShow = !this.isShow;
 			},
 			//关闭弹框
@@ -107,6 +137,7 @@
 				this.isShow = !this.isShow;
 			},
 			save() {
+				console.log(this.shareImage)
 				uni.saveImageToPhotosAlbum({
 					filePath: this.shareImage,
 					success(res) {
@@ -115,7 +146,11 @@
 							icon: 'success',
 							duration: 2000
 						})
+					},
+					fail(res) {
+						console.log(res)
 					}
+
 				})
 			},
 			eventGetImage(event) {
@@ -151,7 +186,7 @@
 		width: 90%;
 		height: calc(100vh - 85px);
 		margin: 0 auto;
-		background-image: url('http://q34h5h1tk.bkt.clouddn.com/girl_bg.jpg');
+		background-image: url('https://facemark.skyvow.cn/uploads/fate_home_bg.jpg');
 		background-size: 100% 100%;
 		position: relative;
 	}
@@ -186,12 +221,12 @@
 	}
 
 	.popup .main {
-		height: 800rpx;
+		height: 880rpx;
 		box-sizing: content-box;
 		background-color: #F84033;
 		display: flex;
 		flex-direction: column;
-		padding: 30rpx;
+		padding: 10rpx 30rpx;
 		// background-image: url('http://q34h5h1tk.bkt.clouddn.com/result_bg.jpg');
 		background-size: 100% 100%;
 		justify-content: space-between;
